@@ -1,84 +1,96 @@
+// Select the HTML element with the id "rideList"
 const rideListElement = document.querySelector("#rideList");
 
+// Get all the rides
 const allRides = getAllRides();
 
+// Loop through each ride asynchronously
 allRides.forEach(async ([id, value]) => {
+  // Parse the ride data from JSON to an object
   const ride = JSON.parse(value);
   ride.id = id;
+
+  // Create a new list item element for the ride
+  const itemElement = document.createElement("li");
+  itemElement.id = ride.id;
+
+  // Set the class name and styles for the list item element
+  itemElement.className = "d-flex p-1 align-items-center shadow-sm gap-1";
+  const mapId = `map${ride.id}`;
+  const mapElement = document.createElement("div");
+  mapElement.id = mapId;
+  mapElement.style = "width:100px;height:100px";
+  mapElement.classList.add("bg-secondary");
+  mapElement.classList.add("rounded-4");
+
+  // Create a new div element to hold the ride data
+  const dataElement = document.createElement("div");
+  dataElement.className = "flex-fill d-flex flex-column";
+  
+  // Append the list item element to the ride list
+  rideListElement.appendChild(itemElement);
+
+  // Add a click event listener to the list item element
+  itemElement.addEventListener("click", () => {
+    window.location.href = `./details.html?id=${ride.id}`;
+  });
+
+  // Get the first position of the ride data and fetch its location data
   const firstPosition = ride.data[0];
-  console.log(firstPosition);
   const firstLocationData = await getLocationData(
     firstPosition.latitude,
     firstPosition.longitude
   );
-  const itemElement = document.createElement("li");
+
+  // Create a div element for the city information
   const cityDiv = document.createElement("div");
+  cityDiv.className = "text-primary mb-2";
   cityDiv.innerText = `City: ${firstLocationData.city} -  ${firstLocationData.countryCode}`;
 
+  // Create a div element for the maximum speed
   const maxSpeedDiv = document.createElement("div");
   maxSpeedDiv.innerText = `Max speed: ${getMaxSpeed(ride.data)} K/hm`;
+  maxSpeedDiv.classList = "h5";
 
-    const distanceDiv = document.createElement("div");
-    distanceDiv.innerText = `Distance: ${getDistance(ride.data)}`;
+  // Create a div element for the distance
+  const distanceDiv = document.createElement("div");
+  distanceDiv.innerText = `Distance: ${getDistance(ride.data)}`;
 
-  itemElement.append(cityDiv);
-  itemElement.appendChild(maxSpeedDiv);
-  itemElement.appendChild(distanceDiv);
+  // Create a div element for the duration time
+  const durationDiv = document.createElement("div");
+  durationDiv.innerText = `Duration time: ${getduration(ride)}`;
 
-  itemElement.id = ride.id;
-  rideListElement.appendChild(itemElement);
-  // console.log(ride);
-});
+  // Create a div element for the start time
+  const dateDiv = document.createElement("div");
+  dateDiv.innerText = `Start time: ${getStartDate(ride)}`;
+  dateDiv.classList = "text-secondary mt-2";
 
-async function getLocationData(latitude, longitude) {
-  const url = `https://api.bigdatacloud.net/data/reverse-geocode-client?latitude=${latitude}&longitude=${longitude}&localityLanguage=en`;
-  const response = await fetch(url);
-  return await response.json();
-}
+  // Append the div elements to the data element
+  dataElement.appendChild(cityDiv);
+  dataElement.appendChild(maxSpeedDiv);
+  dataElement.appendChild(distanceDiv);
+  dataElement.appendChild(durationDiv);
+  dataElement.appendChild(dateDiv);
 
-function getMaxSpeed(positions) {
-  let maxSpeed = 0;
-  positions.forEach((postion) => {
-    if (positions.speed != 0 && positions.speed > maxSpeed) {
-      maxSpeed = positions.speed;
-    }
+  // Append the map element and data element to the list item element
+  itemElement.appendChild(mapElement);
+  itemElement.appendChild(dataElement);
+
+  // Create a Leaflet map and set its view to the first position of the ride data
+  const map = L.map(mapId, {
+    zoomControl: false,
+    dragging: false,
+    attributionControl: false,
+    scrollWheelZoom: false
   });
-  return (maxSpeed * 3.6).toFixed(0);
-}
+  map.setView([firstPosition.latitude, firstPosition.longitude], 16);
 
-function getDistance(positions) {
-  const earthRadius = 6371;
-  let totalDistance = 0;
-  for (let i = 0; i < positions.length - 1; i++) {
-    const p1 = {
-      latitude: positions[i].latitude,
-      longitude: positions[i].longitude,
-    };
-    const p2 = {
-      latitude: positions[i + 1].latitude,
-      longitude: positions[i + 1].longitude,
-    };
+  // Add a tile layer to the map using OpenStreetMap tiles
+  L.tileLayer("https://{s}.tile.openstreetmap.fr/osmfr/{z}/{x}/{y}.png", {
+    minZoom: 15,
+    maxZoom: 20,
+  }).addTo(map);
 
-    const deltaLatitude = toRad(p2.latitude - p1.latitude);
-    const deltaLongitude = toRad(p2.longitude - p1.longitude);
-
-    const A =
-        Math.sin(deltaLatitude / 2) * Math.sin(deltaLatitude / 2) +
-        Math.sin(deltaLongitude / 2) *
-        Math.sin(deltaLongitude / 2) *
-        Math.cos(toRad(p1.latitude)) *
-        Math.cos(toRad(p2.latitude));
-
-        const C = 2 * Math.atan2(Math.sqrt(A),Math.sqrt(1-A));
-        const distance = earthRadius * C;
-
-        totalDistance += distance;
-  }
-
-  function toRad(degree) {
-    return (degree * Math.PI) / 180;
-  }
-
-  return totalDistance.toFixed(2);
-
-}
+  // Add a marker to the map at the first position of the ride data
+  L.marker([firstPosition.latitude, firstPosition.longitude]).addTo(map);
+});
