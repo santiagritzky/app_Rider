@@ -12,7 +12,7 @@ Este é um aplicativo de rastreamento de viagens que permite aos usuários acomp
 
 ## Tecnologias Utilizadas
 
-- HTML, CSS, JavaScript
+- HTML, CSS, Bootstrap e JavaScript
 - Leaflet.js (para renderização do mapa)
 - API de Geolocalização (para rastrear a posição do usuário, a API só funciona em um contexto seguro via https ou no local host por isso o uso do Ngrok) - https://api.bigdatacloud.net/
 - Ngrok (para criar uma URL pública para desenvolvimento local)
