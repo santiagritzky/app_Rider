@@ -16,7 +16,7 @@ function getMaxSpeed(positions) {
   return (maxSpeed * 3.6).toFixed(0);
 }
 
-// Function to calculate the distance from an array of positions
+// Function to calculate the distance from an array of positions, calc ref(https://www.movable-type.co.uk/scripts/latlong.html)
 function getDistance(positions) {
   const earthRadius = 6371;
   let totalDistance = 0;
