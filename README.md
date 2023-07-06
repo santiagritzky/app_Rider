@@ -36,5 +36,7 @@ Durante a viagem, a velocidade atual será exibida.
 Clique no botão "Parar" para encerrar a viagem e visualizar os detalhes da viagem.
 Os detalhes da viagem, incluindo distância, duração, velocidade máxima e rota, serão exibidos.
 A rota da viagem será mostrada no mapa.
-Contribuição
+
+## Contribuição
+
 Contribuições são bem-vindas! Se você encontrar algum problema ou tiver sugestões de melhorias, sinta-se à vontade para enviar um pull request.
